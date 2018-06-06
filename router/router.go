@@ -3,6 +3,7 @@ package router
 // TODO : about / http resp editor / proxy
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -14,7 +15,8 @@ func New() http.Handler {
 	githubGist := proxy.GithubGist()
 
 	return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Host, "gist.github") {
+		fmt.Println(r.Host)
+		if strings.HasPrefix(r.Host, "gist.github") {
 			githubGist.ServeHTTP(w, r)
 			return
 		}
