@@ -19,11 +19,6 @@ func New() http.Handler {
 			return
 		}
 
-		if strings.HasPrefix(r.Host, "gist.github") {
-			githubGist.ServeHTTP(w, r)
-			return
-		}
-
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		w.Write([]byte("Hello!"))
 	}))
 }
