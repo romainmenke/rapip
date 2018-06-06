@@ -8,7 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/romainmenke/rapip/proxy"
+	"github.com/romainmenke/rapip/ratelimiter"
+	"github.com/romainmenke/rapip/router"
 )
 
 type Config struct {
@@ -25,8 +26,12 @@ func Run(config Config) {
 		syscall.SIGQUIT,
 	)
 
-	// routing
-	handler := http.Handler(proxy.New())
+	// handler
+	handler := http.Handler(router.New())
+
+	// rate limiter
+	ratelimiter := ratelimiter.NewLimiter(1000, 50)
+	handler = ratelimiter.Handler(handler)
 
 	server := &http.Server{
 		Addr:              ":" + config.Port,
