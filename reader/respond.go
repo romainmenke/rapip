@@ -9,7 +9,7 @@ import (
 
 func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 	if source.StatusCode/100 != 2 {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(source.StatusCode), source.StatusCode)
 		return
 	}
 
@@ -17,13 +17,13 @@ func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 
 	transform, err := Transform(r, source.Body)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	output, err := http.ReadResponse(bufio.NewReader(transform), r)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -40,7 +40,7 @@ func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 
 	err = source.Body.Close()
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

@@ -12,10 +12,16 @@ import (
 func New() http.Handler {
 
 	githubGist := proxy.GithubGist()
+	githubRepo := proxy.GithubRepo()
 
 	return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.Host, "gist-github") {
 			githubGist.ServeHTTP(w, r)
+			return
+		}
+
+		if strings.HasPrefix(r.Host, "github") {
+			githubRepo.ServeHTTP(w, r)
 			return
 		}
 

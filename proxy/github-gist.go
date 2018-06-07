@@ -16,7 +16,7 @@ func GithubGist() http.Handler {
 		Jar:     nil, // explicit nil, this is a shared client!!
 	}
 
-	router := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second*30)
 		defer cancel()
 
@@ -36,6 +36,4 @@ func GithubGist() http.Handler {
 
 		reader.Respond(w, r, resp)
 	}))
-
-	return router
 }
