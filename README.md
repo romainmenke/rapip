@@ -2,7 +2,7 @@
 
 Rapid.Application.Program.Interface.Prototyping
 
-Turns static files into a HTTP responses.
+Turns static files into HTTP responses.
 
 -------
 
