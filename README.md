@@ -63,6 +63,12 @@ You now have a working endpoint for as many methods as you like!
 - [ ] some dynamic aspect to responses (request query part can be used to pass keys/values)
 - [ ] ....
 
+-----
+
+### Related :
+
+[language-http](https://github.com/romainmenke/language-http) for Atom as a writing aid for HTTP responses.
+
 ----
 
 ### What is `mysterious-mountain.stream`
