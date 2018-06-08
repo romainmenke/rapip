@@ -25,6 +25,6 @@ func New() http.Handler {
 			return
 		}
 
-		w.Write([]byte("Hello!"))
+		http.Redirect(w, r, "https://github.com/romainmenke/rapip", http.StatusPermanentRedirect)
 	}))
 }
