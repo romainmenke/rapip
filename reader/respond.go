@@ -23,26 +23,26 @@ func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 
 	hijacker, ok := w.(http.Hijacker)
 	if ok {
-		conn, buff, err := hijacker.Hijack()
+		conn, _, err := hijacker.Hijack()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
 		defer conn.Close()
-		defer buff.Flush()
+		// defer buff.Flush()
 
-		_, err = io.Copy(buff, transformed)
+		_, err = io.Copy(conn, transformed)
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		err = buff.Flush()
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		// err = buff.Flush()
+		// if err != nil {
+		// 	log.Println(err)
+		// 	return
+		// }
 
 		err = conn.Close()
 		if err != nil {
