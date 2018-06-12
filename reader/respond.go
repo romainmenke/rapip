@@ -21,37 +21,39 @@ func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 		return
 	}
 
-	hijacker, ok := w.(http.Hijacker)
-	if ok {
-		conn, _, err := hijacker.Hijack()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		defer conn.Close()
-		// defer buff.Flush()
-
-		_, err = io.Copy(conn, transformed)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		// err = buff.Flush()
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return
-		// }
-
-		err = conn.Close()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
-		return
-	}
+	// Heroku doesn't seem to like hijackers
+	//
+	// hijacker, ok := w.(http.Hijacker)
+	// if ok {
+	// 	conn, buff, err := hijacker.Hijack()
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return
+	// 	}
+	//
+	// 	defer conn.Close()
+	// 	defer buff.Flush()
+	//
+	// 	_, err = io.Copy(buff, transformed)
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return
+	// 	}
+	//
+	// 	err = buff.Flush()
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return
+	// 	}
+	//
+	// 	err = conn.Close()
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		return
+	// 	}
+	//
+	// 	return
+	// }
 
 	output, err := http.ReadResponse(bufio.NewReader(transformed), r)
 	if err != nil {
