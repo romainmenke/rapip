@@ -15,13 +15,45 @@ func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 
 	defer source.Body.Close()
 
-	transform, err := Transform(r, source.Body)
+	transformed, err := Transform(r, source.Body)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	output, err := http.ReadResponse(bufio.NewReader(transform), r)
+	hijacker, ok := w.(http.Hijacker)
+	if ok {
+		conn, buff, err := hijacker.Hijack()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		defer conn.Close()
+		defer buff.Flush()
+
+		_, err = io.Copy(buff, transformed)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = buff.Flush()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		err = conn.Close()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		return
+	}
+
+	output, err := http.ReadResponse(bufio.NewReader(transformed), r)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 		return
