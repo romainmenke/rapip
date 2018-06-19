@@ -4,12 +4,14 @@ import (
 	"context"
 	"net/http"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/romainmenke/rapip/reader"
+	"github.com/romainmenke/rapip/store"
 )
 
-func GithubRepo() http.Handler {
+func GithubRepo(kvStore store.Store) http.Handler {
 
 	client := http.Client{
 		Timeout: time.Second * 30,
@@ -20,7 +22,13 @@ func GithubRepo() http.Handler {
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second*30)
 		defer cancel()
 
-		req, err := http.NewRequest("GET", "https://"+path.Join("raw.githubusercontent.com/", r.URL.Path, r.Method), nil)
+		p := r.URL.Path
+		pathComponents := strings.Split(p, "/")
+		if len(pathComponents) >= 3 {
+			ctx = store.ContextWithPath(ctx, strings.Join(pathComponents[:3], "/"))
+		}
+
+		req, err := http.NewRequest("GET", "https://"+path.Join("raw.githubusercontent.com/", p, r.Method), nil)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 			return
@@ -34,6 +42,6 @@ func GithubRepo() http.Handler {
 			return
 		}
 
-		reader.Respond(w, r, resp)
+		reader.Respond(ctx, w, r, resp, kvStore)
 	}))
 }

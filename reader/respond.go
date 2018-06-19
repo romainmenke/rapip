@@ -2,12 +2,15 @@ package reader
 
 import (
 	"bufio"
+	"context"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/romainmenke/rapip/store"
 )
 
-func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
+func Respond(ctx context.Context, w http.ResponseWriter, r *http.Request, source *http.Response, kvStore store.Store) {
 	if source.StatusCode/100 != 2 {
 		http.Error(w, http.StatusText(source.StatusCode), source.StatusCode)
 		return
@@ -15,7 +18,7 @@ func Respond(w http.ResponseWriter, r *http.Request, source *http.Response) {
 
 	defer source.Body.Close()
 
-	transformed, err := Transform(r, source.Body)
+	transformed, err := Transform(ctx, r, source.Body, kvStore)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError)+" : "+err.Error(), http.StatusInternalServerError)
 		return

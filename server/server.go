@@ -10,6 +10,7 @@ import (
 
 	"github.com/romainmenke/rapip/ratelimiter"
 	"github.com/romainmenke/rapip/router"
+	"github.com/romainmenke/rapip/store"
 )
 
 type Config struct {
@@ -26,8 +27,13 @@ func Run(config Config) {
 		syscall.SIGQUIT,
 	)
 
+	ctx, mainCancel := context.WithCancel(context.Background())
+	defer mainCancel()
+
+	kvStore := store.NewMemStore(ctx)
+
 	// handler
-	handler := http.Handler(router.New())
+	handler := http.Handler(router.New(kvStore))
 
 	// rate limiter
 	ratelimiter := ratelimiter.NewLimiter(1000, 50)
@@ -46,10 +52,16 @@ func Run(config Config) {
 	go func() {
 		<-signal_chan
 
-		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
-		defer cancel()
+		ctx, shutdownCancel := context.WithTimeout(context.Background(), 120*time.Second)
+		defer shutdownCancel()
 
 		server.Shutdown(ctx)
+
+		time.Sleep(time.Second * 5) // will do for now
+
+		mainCancel()
+
+		time.Sleep(time.Second * 5) // will do for now
 	}()
 
 	err := server.ListenAndServe()

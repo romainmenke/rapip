@@ -7,9 +7,10 @@ import (
 	"time"
 
 	"github.com/romainmenke/rapip/reader"
+	"github.com/romainmenke/rapip/store"
 )
 
-func GithubGist() http.Handler {
+func GithubGist(kvStore store.Store) http.Handler {
 
 	client := http.Client{
 		Timeout: time.Second * 30,
@@ -34,6 +35,6 @@ func GithubGist() http.Handler {
 			return
 		}
 
-		reader.Respond(w, r, resp)
+		reader.Respond(ctx, w, r, resp, kvStore)
 	}))
 }

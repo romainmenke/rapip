@@ -7,12 +7,13 @@ import (
 	"strings"
 
 	"github.com/romainmenke/rapip/proxy"
+	"github.com/romainmenke/rapip/store"
 )
 
-func New() http.Handler {
+func New(kvStore store.Store) http.Handler {
 
-	githubGist := proxy.GithubGist()
-	githubRepo := proxy.GithubRepo()
+	githubGist := proxy.GithubGist(kvStore)
+	githubRepo := proxy.GithubRepo(kvStore)
 
 	return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.Host, "gist-github") {
